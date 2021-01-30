@@ -13,7 +13,7 @@ export default class OrdersController {
 
     const order = await findOrder.execute({ id });
 
-    return response.json({ ...order, customer_id: undefined });
+    return response.json(order);
   }
 
   public async create(request: Request, response: Response): Promise<Response> {

@@ -50,13 +50,13 @@ class CreateOrderService {
     }
 
     const productsQuantityUpdated = productsInStock.map(productInStock => {
-      const orderProduct = orderProducts.filter(
+      const [orderProduct] = orderProducts.filter(
         product => product.id === productInStock.id,
       );
 
       const productQuantityUpdated = {
         id: productInStock.id,
-        quantity: productInStock.quantity - orderProduct[0].quantity,
+        quantity: productInStock.quantity - orderProduct.quantity,
       };
 
       if (productQuantityUpdated.quantity < 0) {
@@ -67,20 +67,21 @@ class CreateOrderService {
       return productQuantityUpdated;
     });
 
-    const products = orderProducts.map(orderProduct => {
-      const prot = productsInStock.filter(prod => prod.id === orderProduct.id)
+    const newOrderProducts = orderProducts.map(orderProduct => {
+      const [findStockProduct] = productsInStock.filter(
+        product => product.id === orderProduct.id,
+      );
 
       return {
         product_id: orderProduct.id,
-        price: prot[0].price,
-        quantity: orderProduct.quantity
-      }
-    }
-    )
+        price: findStockProduct.price,
+        quantity: orderProduct.quantity,
+      };
+    });
 
     const order = await this.ordersRepository.create({
       customer,
-      products
+      products: newOrderProducts,
     });
 
     await this.productsRepository.updateQuantity(productsQuantityUpdated);
